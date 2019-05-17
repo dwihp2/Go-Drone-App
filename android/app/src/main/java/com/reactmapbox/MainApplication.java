@@ -3,6 +3,7 @@ package com.reactmapbox;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
@@ -30,7 +31,8 @@ public class MainApplication extends Application implements ReactApplication {
             new RNGestureHandlerPackage(),
             new VectorIconsPackage(),
             new AsyncStoragePackage(),
-            new RCTMGLPackage()
+            new RCTMGLPackage(),
+            new RNFusedLocationPackage()
       );
     }
 
