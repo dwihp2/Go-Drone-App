@@ -14,6 +14,7 @@ import Page from './common/Page';
 import PulseCircleLayer from './common/PulseCircleLayer';
 
 const SF_ZOO_COORDINATE = [-122.505412, 37.737463];
+const TEST = [103.94618, 1.044992]
 
 const styles = StyleSheet.create({
   buttonCnt: {
@@ -83,10 +84,12 @@ class DriveTheLine extends React.Component {
     const res = await MapboxClient.getDirections(
       [
         {
-          latitude: SF_OFFICE_COORDINATE[1],
-          longitude: SF_OFFICE_COORDINATE[0],
+          // latitude: SF_OFFICE_COORDINATE[1],
+          // longitude: SF_OFFICE_COORDINATE[0],
+          longitude : 103.94618,
+          latitude : 1.044992
         },
-        {latitude: SF_ZOO_COORDINATE[1], longitude: SF_ZOO_COORDINATE[0]},
+        {latitude: 1.08507, longitude: 103.94603},
       ],
       {profile: 'walking', geometry: 'polyline'},
     );
@@ -94,6 +97,7 @@ class DriveTheLine extends React.Component {
     this.setState({
       route: makeLineString(res.entity.routes[0].geometry.coordinates),
     });
+    alert(JSON.stringify(this.state.route));
   }
 
   componentWillUnmount() {
@@ -169,7 +173,8 @@ class DriveTheLine extends React.Component {
     return (
       <MapboxGL.ShapeSource
         id="origin"
-        shape={MapboxGL.geoUtils.makePoint(SF_OFFICE_COORDINATE)}
+        // shape={MapboxGL.geoUtils.makePoint(SF_OFFICE_COORDINATE)}
+        shape={MapboxGL.geoUtils.makePoint(TEST)}
       >
         <MapboxGL.Animated.CircleLayer id="originInnerCircle" style={style} />
       </MapboxGL.ShapeSource>
@@ -197,9 +202,12 @@ class DriveTheLine extends React.Component {
     return (
       <Page {...this.props}>
         <MapboxGL.MapView
-          zoomLevel={11}
+          textureMode = {true}
+          zoomLevel={20}
           ref={c => (this._map = c)}
-          centerCoordinate={[-122.452652, 37.762963]}
+          // showUserLocation = {true}
+          userTrackingMode = {MapboxGL.UserTrackingModes.Follow}
+          centerCoordinate={[104.04866, 1.11862]}
           style={sheet.matchParent}
           styleURL={MapboxGL.StyleURL.Dark}
         >

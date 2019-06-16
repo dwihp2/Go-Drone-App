@@ -16,8 +16,8 @@ export default class App extends Component {
 }
 
 const pubnub = new PubNub({
-  subscribeKey: "sub-c-f92fd6d6-5bab-11e9-ba87-ca4df85413ac",
-  publishKey: "pub-c-5b2e8708-19f5-4aa4-b9a3-585047b421d7",
+  subscribeKey: "sub-c-16ace6e8-7ee5-11e9-bc4f-82f4a771f4c5",
+  publishKey: "pub-c-2ab64a26-b7bb-4cc3-9418-5fdaf3c3adfd",
   ssl: true,
   presenceTimeout:350000
 })
@@ -26,13 +26,7 @@ pubnub.addListener({
   message: function(request) {
     let msg
     msg= request.message.payload? ` ${request.message.payload} and DATA: ${request.message.data}` : 'Request not valid'
-    //alert(typeof message);
-    // if (typeof message != null) 
-    // {
-    // //   console.log(message.payload);
     alert(msg);
-    // }
-      // handle message
   }
 })
 

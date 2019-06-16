@@ -1,6 +1,6 @@
 import MapboxClient from 'mapbox';
+import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
-import config from './utils/config';
-
-const client = new MapboxClient(config.get('accessToken'));
+MapboxGL.setAccessToken('pk.eyJ1IjoiZHdpaHAyIiwiYSI6ImNqdWRsajF0NDEwZTU0ZHBicTlsY3lyNjQifQ.hVZkan4i6qiTTh0WfVGwsg')
+const client = new MapboxClient('pk.eyJ1IjoiZHdpaHAyIiwiYSI6ImNqdWRsajF0NDEwZTU0ZHBicTlsY3lyNjQifQ.hVZkan4i6qiTTh0WfVGwsg');
 export default client;
