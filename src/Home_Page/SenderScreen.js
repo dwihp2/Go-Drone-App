@@ -1,43 +1,44 @@
 import React, { Component } from 'react';
-import { View, Text, Stylesheet, Button, Platform } from 'react-native';
+import { View, Text, Stylesheet, Button, Platform, Alert } from 'react-native';
 import { styles } from '../styles';
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 import {IS_ANDROID} from '../../src_map/utils';
-import SetUserTrackingModes from '../../src_map/components/SetUserTrackingModes';
 import PubNub from 'pubnub';
+import {lineString as makeLineString} from '@turf/helpers';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
+const ROOT_URL = 'https://arcane-forest-23110.herokuapp.com/';
+const io = require('socket.io-client/dist/socket.io');
+
+let socket;
+let routes = [[null,null],[null,null]];
+ 
 Mapbox.setAccessToken("pk.eyJ1IjoiZHdpaHAyIiwiYSI6ImNqdWRsajF0NDEwZTU0ZHBicTlsY3lyNjQifQ.hVZkan4i6qiTTh0WfVGwsg");
 
-let lat = null;
-let lng = null;
-
-// const pubnub = new PubNub({
-//   subscribeKey: "sub-c-f92fd6d6-5bab-11e9-ba87-ca4df85413ac",
-//   publishKey: "pub-c-5b2e8708-19f5-4aa4-b9a3-585047b421d7",
-//   ssl: true
-// })
+let lat = undefined;
+let lng = undefined;
+let latDestination = undefined;
+let lngDestination = undefined;
 
 // pubnub.addListener({
-//   message: function(request) {
+//   message: function(payload) {
 //     let msg
-//     msg = request.message.payload? ` Latitude ${request.message.latitude} and Longitude: ${request.message.longitude}` : 'Request not valid'
-//       lat = request.message.latitude
-//       lng = request.message.longitude
-//       // console.log(message);
-//       alert(msg);
-//       // handle message
+//     msg = payload.message.directions
+//     // msg= payload.message.distance? ` ${payload.message.payload} and DATA: ${payload.message.data}` : 'Request not valid'
+//     alert(msg);
 //   }
 // })
-
-// pubnub.subscribe({ 
-//   channels: ['Coordinate'], 
-// });
+const testCoords = [
+  [103.94618, 1.044992], 
+  [103.946089, 1.044942],
+  [103.94603, 1.04507]
+]
+const line = makeLineString(testCoords);
 
 export default class SenderScreen extends Component {
   state = {
-    currentLatitude:'unknown',
-    currentLongitude:'unknown',
+    currentLatitude:'',
+    currentLongitude:'',
   }
 	constructor(props) {
     super(props);
@@ -47,90 +48,95 @@ export default class SenderScreen extends Component {
       isAndroidPermissionGranted: false,
       activeExample: -1,
 		};		
-    // this.renderItem = this.renderItem.bind(this);
-    // this.onCloseExample = this.onCloseExample.bind(this);
+  }
+  componentWillUnmount = () =>{
+    socket.on('disconnect', ()=>{
+      console.warn('Disconnected from server');
+    })
+  }
+  componentDidMount = () => {    
+    socket.on('connect', ()=>{
+      console.warn('Connected to server');
+    });    
+    
+    getLocation=()=>{
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(updatePosition);
+      }
+      return null;
+    };
+    updatePosition=(position)=>  {
+      if (position) {
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+    }
+    setInterval(() => {
+      updatePosition(getLocation());
+    }, 10000);
+
+    getLocation();
   }
 
-  // async componentWillMount() {
-  //   if (IS_ANDROID) {
-  //     const isGranted = await Mapbox.requestAndroidLocationPermissions();
-  //     this.setState({
-  //       isAndroidPermissionGranted: isGranted,
-  //       isFetchingAndroidPermission: false,
-  //     });
-  //   }
-  // }
+   renderRouteLine=()=>{
+    const lineString = makeLineString(routes);
+    return (
+      <MapboxGL.Animated.ShapeSource
+        id = "routesLineSource"
+        shape = {lineString}>
+        <MapboxGL.Animated.LineLayer
+          id = "routesLineFill"
+          style = {{lineColor:'#540067', lineWidth: 3}}
+        />
+      </MapboxGL.Animated.ShapeSource>
+    )
+  }
 
-  componentDidMount = () => {
-    var that = this;
-    if (Platform.OS == 'android')
-    {
-      this.calllocation(that);
-    }
-    else 
-    {
-      async function requestAndroidLocationPermissions() {
-        try {
-          const granted = await PermissionAndroid.request (
-            PermissionAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,{
-              'title': 'Location Access Required',
-              'message': 'This App needs to access your location'
-            }
-          )
-          if (granted == PermissionAndroid.RESULT.GRANTED){
-            that.calllocation(that);
-          }
-          else {
-            alert("Permission Denied");
-          }
-        }
-        catch (err) {
-          alert ("err",err);
-          console.warn(err);
-        }
-      }
-      requestLocationPermission();
-      }
-    }
-    calllocation(that){
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const currentLongitude = JSON.stringify(position.coords.longitude);
-          //getting the Longitude from the location json
-          const currentLatitude = JSON.stringify(position.coords.latitude);
-          //getting the Latitude from the location json
-          that.setState({ currentLongitude:currentLongitude });
-          //Setting state Longitude to re re-render the Longitude Text
-          that.setState({ currentLatitude:currentLatitude });
-          //Setting state Latitude to re re-render the Longitude Text
-        },
-        (error) => alert(error.message),
+ 	render() {
+    socket = io.connect(ROOT_URL);
+
+    
+    setInterval(() => {
+      socket.emit('toServer-origin',
         {
-          enableHighAccuracy:true, timeout:20000, maximumAge:1000
-        }
-      );
-      that.watchID = navigator.geolocation.watchPosition((position) => {
-        //Will give you the location on location change
-        console.log(position);
-        const currentLongitude = JSON.stringify(position.coords.longitude);
-        //getting the Longitude from the location json
-        const currentLatitude = JSON.stringify(position.coords.latitude);
-        //getting the Latitude from the location json
-        that.setState({ currentLongitude:currentLongitude });
-        // that.setState({lng = currentLongitude})
-        //Setting state Longitude to re re-render the Longitude Text
-        that.setState({ currentLatitude:currentLatitude });
-        // that.setState(({lat = currentLatitude}))
-        //Setting state Latitude to re re-render the Longitude Text
-      });
-  }
-  componentWillUnmount = ()=> {
-    navigator.geolocation.clearWatch(this.watchID);
-  }
+          lat1: lat,
+          lng1: lng
+        });
 
-	render() {
+      socket.on('fromServer-destination', (response)=>{
+        if (response.lat2 == null && response.lat2 == null){
+          alert('Response Null, Wait For a Minute');
+        }
+        else{
+          latDestination = response.lat2;
+          lngDestination = response.lng2;
+        }
+        // console.warn(`Receive Destination: ${[latDestination, lngDestination]}`);
+      });      
+    }, 7000);
+      
+
+
+    const buttonPOST=()=>{
+      let promRoutes = new Promise (resolve=>{
+        fetch('https://arcane-forest-23110.herokuapp.com/getDirection',
+        {
+          method: "GET",        
+        }).then((response)=> response.text())
+        .then((responseJson)=>{
+          // console.warn(JSON.stringify(responseJson));
+          routes = responseJson;
+        }).catch(error=>{
+          alert(`ERROR: ${error}`);
+        })
+        resolve(routes);
+        console.warn(routes);
+      })
+    }
+    
 		return (
-      <View style={{ flex: 1 }}>
+      <View style={{flex:1}}>
+      
         <View style={{
             alignItems: "center",
             justifyContent: "center",
@@ -141,10 +147,17 @@ export default class SenderScreen extends Component {
           textureMode = {true}
           showUserLocation = {true}
           userTrackingMode = {Mapbox.UserTrackingModes.Follow}
+          onUserLocationUpdate = {[lng, lat]}
           styleURL={Mapbox.StyleURL.Street}
           zoomLevel={20}
-          //centerCoordinate={[104.04866, 1.11862]}
-          style={styles.viewMap}
+          centerCoordinate={[104.04866, 1.11862]}
+          style={styles.viewMap}>
+          {this.renderRouteLine()}
+        </Mapbox.MapView>
+        <Button
+          onPress = {buttonPOST}
+          title = "Get Routes"
+          color = "blue"
         />
       </View>
     );
