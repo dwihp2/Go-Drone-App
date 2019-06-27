@@ -9,7 +9,7 @@ const rootNavigator = createSwitchNavigator ({
     AUTH:_AuthStackScreen,
     DASHBOARD:_DashboardBottomTab
 },{
-    initialRouteName:'AUTH'
+    initialRouteName:'DASHBOARD'
 })
 
 export default createAppContainer(rootNavigator);

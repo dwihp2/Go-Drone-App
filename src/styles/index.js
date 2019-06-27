@@ -22,13 +22,26 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'white',
         borderRadius: 15
-      },
+    },
       annotationFill:{
         width:30,
         height:30,
         borderRadius:15,
         backgroundColor:'orange',
         transform: [{scale: 0.6 }],
-      }
+    },
+    buttonCnt: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        backgroundColor: 'transparent',
+        position: 'absolute',
+        bottom: 16,
+        left: 0,
+        right: 0,
+    },
+      button: {
+        borderRadius: 3,
+        backgroundColor: 'blue',
+    },
 })
 

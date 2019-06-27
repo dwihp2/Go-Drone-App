@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text} from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
+import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 import sheet from '../styles/sheet';
 import {onSortOptions} from '../utils';

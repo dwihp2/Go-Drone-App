@@ -45,7 +45,7 @@ class Polyline {
 }
 
 class RouteSimulator {
-  constructor(lineString, speed = 0.04) {
+  constructor(lineString, speed = 0.0025) {
     this._polyline = new Polyline(lineString);
     this._previousDistance = 0;
     this._currentDistance = 0;
@@ -96,7 +96,7 @@ class RouteSimulator {
         this._animatedValue.removeListener(listener);
 
         if (this._currentDistance > this._polyline.totalDistance) {
-          this.reset();
+          // this.reset();
           return;
         }
 

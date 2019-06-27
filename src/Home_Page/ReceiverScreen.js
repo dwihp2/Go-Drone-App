@@ -12,11 +12,6 @@ let dataIN;
 
 Mapbox.setAccessToken("pk.eyJ1IjoiZHdpaHAyIiwiYSI6ImNqdWRsajF0NDEwZTU0ZHBicTlsY3lyNjQifQ.hVZkan4i6qiTTh0WfVGwsg");
 
-let lat = undefined;
-let lng = undefined;
-let latOrigin = undefined;
-let lngOrigin = undefined;
-
 // const pubnub = new PubNub({
 //     subscribeKey: "sub-c-16ace6e8-7ee5-11e9-bc4f-82f4a771f4c5",
 //     publishKey: "pub-c-2ab64a26-b7bb-4cc3-9418-5fdaf3c3adfd",
@@ -41,56 +36,75 @@ let lngOrigin = undefined;
   
 
 export default class ReceiverScreen extends Component {
-    state = {
-      currentLatitude:'undefined',
-      currentLongitude:'undefined',
-    }
       constructor(props) {
-      super(props);
-  
+      super(props);  
       this.state = {
         isFetchingAndroidPermission: IS_ANDROID,
         isAndroidPermissionGranted: false,
         activeExample: -1,
-        };		
-    }
-  
-    componentDidMount = () => {
 
-      socket.on('connect', ()=>{
+        isLoading: true,
+        myPosition:{
+          latitude: 0,
+          longitude: 0,
+          timestamp:0,
+        },
+        drone:{},
+        };		
+        
+      this.socket = io.connect(ROOT_URL);
+    };  
+    componentDidMount = () => {
+      this.socket.on('connect', ()=>{
         console.warn('Connected to server');
       });
 
-      getLocation=()=>{
-        if(navigator.geolocation){
-          navigator.geolocation.getCurrentPosition(updatePosition);
-        }
-        return null;
-      };
-      updatePosition=(position)=>  {
-        if (position) {
-          lat = position.coords.latitude;
-          lng = position.coords.longitude;
-        }
-      }
-      setInterval(() => {
-        updatePosition(getLocation());
-      }, 10000);     
-    }   
-        
+      navigator.geolocation.getCurrentPosition(
+        position=>{
+          this.socket.emit('client-ReceiverPosition', {
+            data: position,
+            id: this.id,
+          })
+
+          let tempPosition = {...this.state.myPosition};
+          tempPosition.latitude = position.coords.latitude;
+          tempPosition.longitude = position.coords.longitude;
+
+          this.setState({
+            myPosition: tempPosition,
+            isLoading: false,
+          });
+        },
+        error=> console.warn(error),
+        {enableHighAccuracy:true, timeout:20000, distanceFilter:10 }
+      );
+    }
+
+             
   
       render() {
-        socket = io.connect(ROOT_URL);
-        
-        
+        this.socket.on('dronePosition', positionData=>{
+          let tempDrone = {...this.state.drone};
+          tempDrone[positionData.id] = {...positionData}
+
+          this.setState({
+            drone: tempDrone,
+          })
+        })
+
+        let dronePositionArr = Object.values(this.state.drone);
+        console.warn('dronePositionArr', dronePositionArr);
+      
         setInterval(() => {
-          socket.emit('toServer-destination',
+          this.socket.emit('toServer-destination',
           {
-            lat2: lat,
-            lng2: lng
+            // lat2: lat,
+            // lng2: lng
+            lat2: 1.04707,
+            lng2: 103.94603,
           });
 
-          socket.on('fromServer-origin', (response)=>{
+          this.socket.on('fromServer-origin', (response)=>{
             if (response.lat1 == null && response.lng1 == null){
               alert('Response Null, Wait For a Minute');
             }
@@ -100,12 +114,13 @@ export default class ReceiverScreen extends Component {
             }
             // console.warn(`Receive Origin: ${[latOrigin, lngOrigin]}`);
           })          
-        }, 7000);
+        }, 5000);
         
 
 
         const buttonPOST=()=>{                  
-          console.warn([lat, lng]);
+          // console.warn([lat, lng]);
+          console.warn('dronePositionArr', dronePositionArr);
         }
 
           return (
