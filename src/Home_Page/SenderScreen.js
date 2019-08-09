@@ -5,6 +5,7 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
 import {IS_ANDROID} from '../../src_map/utils';
 import PubNub from 'pubnub';
 import {lineString as makeLineString} from '@turf/helpers';
+import { TextInput } from 'react-native-gesture-handler';
 
 import MapboxClient from '../../src_map/MapboxClient';
 import RouteSimulator from '../../src_map/utils/RouteSimulator'
@@ -81,6 +82,9 @@ export default class SenderScreen extends Component {
         longitude:0,
         timestamp:0,
       },
+      berat:'berat',
+      jarak: 'null',
+      SOS: 'null'
     };		
 
     this.socket = io.connect(ROOT_URL);
@@ -97,7 +101,7 @@ export default class SenderScreen extends Component {
   }
   componentDidMount = () => {    
     this.socket.on('connect', ()=>{
-      console.warn('Connected to server');
+      // console.warn('Connected to server');
     });        
 
     navigator.geolocation.getCurrentPosition(
@@ -123,6 +127,11 @@ export default class SenderScreen extends Component {
       error=> console.warn(error.message),
       {enableHighAccuracy:true, timeout:20000, distanceFilter:10}
     )
+
+    this.socket.on('start-simulator',(response)=>{
+      console.warn(JSON.stringify(response));
+      console.log(JSON.stringify(response));
+    })
   }
 
   onStart(){
@@ -130,6 +139,9 @@ export default class SenderScreen extends Component {
     routeSimulator.addListener(currentPoint=>this.setState({currentPoint}));
     routeSimulator.start();
     this.setState({routeSimulator});
+    this.socket.emit('start-simulator',{
+      data: 'start'
+    })    
         
   }
 
@@ -143,13 +155,13 @@ export default class SenderScreen extends Component {
   }
 
   renderBackButton(){
-    console.warn('back start')
+    // console.warn('back start')
     setTimeout(() => {
-      const totalDistance = this.state.routeSimulator._polyline._totalDistance;
-      const currentDistance = this.state.routeSimulator._currentDistance;
+      // const totalDistance = this.state.routeSimulator._polyline._totalDistance;
+      // const currentDistance = this.state.routeSimulator._currentDistance;
       
       if(currentDistance>=totalDistance){
-        console.warn('BACK');
+        // console.warn('BACK');
           <Button
                 raised
                 title="Return"
@@ -164,7 +176,13 @@ export default class SenderScreen extends Component {
   
   
   onDisplayRoute(){
-    this.getDirections();    
+    this.getDirections();
+    
+    this.setState({
+      berat:'3',
+      jarak:'750m'
+    })
+    alert("Lokasi Penerima telah Didapat")
     
     // console.warn('routeSimulator',JSON.stringify(this.state.routeSimulator._polyline._totalDistance));
     // console.warn(this.state.route.coordinates)
@@ -304,17 +322,17 @@ export default class SenderScreen extends Component {
     if(this.state.routeSimulator){
       return null;
     }        
-    return(
-      <View style={styles.buttonCnt}>
-        <Button
-          raised
-          title="Start"
-          onPress={this.onStart}
-          style={styles.button}
-          disabled={!this.state.route}
-        />             
-      </View>
-    )
+    // return(
+    //   // <View style={styles.buttonCnt}>
+    //   //   {/* <Button
+    //   //     raised
+    //   //     title="Start"
+    //   //     onPress={this.onStart}
+    //   //     style={styles.button}
+    //   //     disabled={!this.state.route}
+    //   //   />              */}
+    //   // </View>
+    // )
   }
 
  	render() {
@@ -361,12 +379,12 @@ export default class SenderScreen extends Component {
     
 		return (
       <View style={{flex:1}}>      
-        <View style={{
+        {/* <View style={{
             alignItems: "center",
             justifyContent: "center",
             marginVertical: 10 }}>
           <Text style={styles.headerText}>Tujuan</Text>
-        </View>
+        </View> */}
         <Mapbox.MapView
           textureMode = {true}
           showUserLocation = {true}
@@ -393,22 +411,103 @@ export default class SenderScreen extends Component {
             />
           </Mapbox.ShapeSource>
         </Mapbox.MapView>
-        <Button
+        {/* <Button
           raised
           title="Get Route"
           onPress={this.onDisplayRoute}
           style={styles.button}
           // disabled={!this.state.route}
-        /> 
+        />  */}
         {this.renderActions()}
-        {this.renderBackButton()}
+        
+        <View style= {{ 
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            backgroundColor: 'transparent',
+            top: 5,
+          }}>
+            <Button
+              style = {styles.button}
+              onPress={this.onDisplayRoute}
+              title = "Get Route"            
+            />
+            <Button
+              raised
+              title="Start"
+              onPress={this.onStart}
+              style={styles.button}
+              disabled={!this.state.route}
+            />
+          </View> 
+          <View style = {{
+            flexDirection:"row",
+            justifyContent:'flex-start',
+            top: 10,
+            }}>
+            <Text style={{top:12}}>Berat(Kg)         :</Text>
+            <TextInput style = {styles.inputText}
+              underlineColorAndroid = 'transparent'
+              placeholder = 'Berat'
+              keyboardType='number-pad'  
+              editable = {false}
+              value = {this.state.berat}            
+              // onChangeText = {this.handleBerat}
+            />
 
-        {/* <Button
-          onPress = {buttonPOST}
-          title = "Get Routes"
-          color = "blue"
-        /> */}
-      </View>
+            <View style = {{
+            flexDirection:"row",
+            justifyContent:'flex-end',
+            left: 40,
+            }}> 
+            <Text style={{top:12}}>SOS/Ulasan:</Text>            
+            </View>      
+          </View>  
+          
+          <View style = {{
+            flexDirection:"row",
+            justifyContent:'flex-start',
+            top: 8,            
+            }}>
+            <Text style={{top:12}}>Jarak Tempuh:</Text>
+            <TextInput style = {styles.inputText}
+              underlineColorAndroid = 'transparent'
+              placeholder = 'Jarak'
+              keyboardType='number-pad'
+              editable = {false}   
+              value = {this.state.jarak}           
+              // onChangeText = {this.handleBerat}
+            />
+
+            <View style = {{
+              flexDirection:"row",
+              justifyContent:'flex-end',
+              left: 35,
+              }}>
+              <TextInput style = {{
+                margin:5,
+                height:35,
+                // width:30
+                width: 150,
+                borderWidth:1,
+              }}
+                underlineColorAndroid = 'transparent'
+                placeholder = 'SOS/Ulasan'
+                keyboardType='default'              
+                // onChangeText = {this.handleBerat}
+              />
+            </View>
+
+          </View> 
+
+          <View style = {{
+            flexDirection:"row",
+            justifyContent:'flex-start',
+            // top: 5,
+            }}>
+            <Text style={{top:12}}>Harga/Tarif:</Text>
+            <Text style={{top:12}}>1000/100m</Text>
+          </View>                        
+        </View>
     );
 	}
 }
