@@ -56,7 +56,7 @@ export default class ReceiverScreen extends Component {
     };  
     componentDidMount = () => {
       this.socket.on('connect', ()=>{
-        console.warn('Connected to server');
+        // console.warn('Connected to server');
       });
 
       navigator.geolocation.getCurrentPosition(
@@ -93,7 +93,7 @@ export default class ReceiverScreen extends Component {
         })
 
         let dronePositionArr = Object.values(this.state.drone);
-        console.warn('dronePositionArr', dronePositionArr);
+        // console.warn('dronePositionArr', dronePositionArr);
       
         setInterval(() => {
           this.socket.emit('toServer-destination',
