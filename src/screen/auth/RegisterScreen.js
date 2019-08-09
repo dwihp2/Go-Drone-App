@@ -16,45 +16,46 @@ firebase.initializeApp({
     appId: "1:421705696625:web:e3c038c46e7934fc"
 })
 
-export default class RegisterScreen extends React.Component {
+export default class RegisterScreen extends Components {
     constructor (props){
+        super(props);
         this.state = {
             email:'',
             password:'',
             error:'',
             loading:false,
         };
+    }
 
-        onSignUpPress(){
-            this.setState({
-                error:'', 
-                loading:true
-            })
+    onSignUpPress() {
+        this.setState({
+            error:'', 
+            loading:true
+        });
 
-            const {email, password} = this.state;
-            firebase.auth().createUserWithEmailAndPassword(email,password)
-            .then (() =>{
-                this.setState({error:'', loading:false})
-                navigationServices.navigate('AUTH')
-            })
-            .catch(()=> {
-                thi.setState({error:'Authentication Failed', loading:false})
-            })
+        const {email, password} = this.state;
+        firebase.auth().createUserWithEmailAndPassword(email,password)
+        .then (() =>{
+            this.setState({error:'', loading:false})
+            navigationServices.navigate('AUTH')
+        })
+        .catch(()=> {
+            thi.setState({error:'Authentication Failed', loading:false})
+        })
+    };
+
+    renderButtonOrLoading(){
+        if (this.state.loading){
+            return <Text>Loading</Text>
         }
-
-        renderButtonOrLoading(){
-            if (this.state.loading){
-                return <Text>Loading</Text>
-            }
-            return (
-                <View>                
-                    <Button
-                        onPress = {this.onSignUpPress.bind(this)}
-                        title = 'Sign Up'
-                    />        
-                </View>
-            ) 
-        }
+        return (
+            <View>                
+                <Button
+                    onPress = {this.onSignUpPress.bind(this)}
+                    title = 'Sign Up'
+                />        
+            </View>
+        ) 
     }
 
     render () {
