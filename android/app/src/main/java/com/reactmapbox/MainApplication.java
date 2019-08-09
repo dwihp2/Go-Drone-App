@@ -3,9 +3,9 @@ package com.reactmapbox;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
+import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.mapbox.rctmgl.RCTMGLPackage;
 import com.facebook.react.ReactNativeHost;
@@ -30,9 +30,9 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new RNGestureHandlerPackage(),
             new VectorIconsPackage(),
+            new RNFusedLocationPackage(),
             new AsyncStoragePackage(),
-            new RCTMGLPackage(),
-            new RNFusedLocationPackage()
+            new RCTMGLPackage()
       );
     }
 
