@@ -13,7 +13,7 @@ const ProfileScreen = () => {
 
     const _getDataUser = async () => {
         try {
-            let _dataUser = await AsyncStorage.getItem("@USER_DATA");
+            let _dataUser = await AsyncStorage.getItem("@EMAIL");
             setDataUser(JSON.parse (_dataUser));
         }
         catch (e) {
@@ -23,7 +23,7 @@ const ProfileScreen = () => {
 
     const _logOut = async () => {
         try {
-            await AsyncStorage.removeItem("@USER_DATA");
+            await AsyncStorage.removeItem("@EMAIL");
         }
         catch (e) {
             alert (e);
@@ -34,10 +34,10 @@ const ProfileScreen = () => {
     return (
         <View style = {styles.container}>
             <Text ProfileScreen></Text>
-            {dataUser["nama"] && (
+            {dataUser["email"] && (
                 <>
-                    <Text style = {{fontSize:28}}>{dataUser ["nama"]}</Text>
-                    <Text style = {{fontSize:28,marginBottom:30}}>{dataUser ["email"]}</Text>
+                    <Text style = {{fontSize:28, paddingBottom:16}}>{dataUser ["email"]}</Text>
+                    {/* <Text style = {{fontSize:28,marginBottom:30}}>{dataUser ["email"]}</Text> */}
                 </>    
             )}
             <Button onPress={_logOut} title="LOGOUT" />
