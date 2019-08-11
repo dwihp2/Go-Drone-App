@@ -6,9 +6,7 @@ import * as yup from 'yup';
 import CostumTextInput from '../components/CostumTextInput';
 import navigationServices from '../helper/navigationServices';
 import Loading from '../components/Loading';
-//import console = require("console");
-//import { resolve } from "url";
-//import { reject } from "assert";
+import Firebase from '../helper/Firebase_Config';
 
 const validateFormik = yup.object().shape({
     email:yup
@@ -28,15 +26,31 @@ const FormLogin = () => {
         };
     }, []);
 
+    _changeRegister = () => {
+        return new Promise ((resolve) =>{
+            setTimeout(()=>{
+                resolve(true)
+            }, 1000)
+        })
+    }
+
     _doLogin = ({email, password}) => {
         return new Promise((resolve, reject) => {
             setTimeout(()=> {
-                if(email==="admin@gmail.com" && password ==="123456") {
-                    resolve(true);
-                }
-                else {
-                    reject(new Error("Email or Password Invalid"));
-                }
+                Firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(()=> {
+                    resolve (true)                    
+                })
+                .catch(()=>{
+                    reject(new Error("Email or Password Invalid"))
+                    alert("Email or Password Invalid")
+                })
+                // if(email==="admin@gmail.com" && password ==="123456") {
+                //     resolve(true);
+                // }
+                // else {
+                //     reject(new Error("Email or Password Invalid"));
+                // }
             }, 2000);
         });
     };
@@ -48,11 +62,12 @@ const FormLogin = () => {
                 password:""
             }}
             onSubmit={(values, actions) => {
+                Button.
                 _doLogin({email:values.email, password:values.password})
                 .then( async()=> {
-                    const userData = {nama:'Administrator', email:values.email}
+                    const userData = {email:values.email}
                     try{
-                        await AsyncStorage.setItem("@USER_DATA",JSON.stringify(userData));
+                        await AsyncStorage.setItem("@EMAIL",JSON.stringify(userData));
                         navigationServices.navigate("DASHBOARD");
                     }catch(e) {
                         alert(e)
@@ -91,10 +106,12 @@ const FormLogin = () => {
                                 style = {{color:"steelblue", fontSize:16, fontStyle:"italic"}}
                             >{'Lupa Password ?'}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigationServices.navigate("REGISTER")}>
-                            <Text
-                                style={{color:"steelblue", fontSize:16, fontStyle:"italic"}}
-                                >{'Register'}</Text>
+                        <TouchableOpacity 
+                            onPress={() => navigationServices.navigate("REGISTER")}>
+                                <Text
+                                    style={{color:"steelblue", fontSize:16, fontStyle:"italic"}}
+                                    >{'Register'}
+                                </Text>
                         </TouchableOpacity>
                     </View>
                 </>
