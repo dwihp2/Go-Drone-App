@@ -1,3 +1,4 @@
+// import * as firebase from 'firebase';
 import firebase from 'firebase';
 
 const config = {
@@ -10,8 +11,8 @@ const config = {
     appId: "1:421705696625:web:e3c038c46e7934fc"
 };
 
-const Firebase = firebase.initializeApp(config);
-export default Firebase;
+// const Firebase = firebase.initializeApp(config);
+// export default Firebase;
 
-// export default !firebase.apps.length ? firebase.initializeApp(config) : firebase.app();
+export default !firebase.apps.length ? firebase.initializeApp(config) : firebase.app();
 
