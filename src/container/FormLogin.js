@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import CostumTextInput from '../components/CostumTextInput';
 import navigationServices from '../helper/navigationServices';
 import Loading from '../components/Loading';
-import Firebase from '../helper/Firebase_Config';
+import firebase from '../helper/Firebase_Config';
 
 const validateFormik = yup.object().shape({
     email:yup
@@ -25,19 +25,11 @@ const FormLogin = () => {
             console.log("unmount FormLogin");
         };
     }, []);
-
-    _changeRegister = () => {
-        return new Promise ((resolve) =>{
-            setTimeout(()=>{
-                resolve(true)
-            }, 1000)
-        })
-    }
-
+    
     _doLogin = ({email, password}) => {
         return new Promise((resolve, reject) => {
             setTimeout(()=> {
-                Firebase.auth().signInWithEmailAndPassword(email, password)
+                firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(()=> {
                     resolve (true)                    
                 })
@@ -45,12 +37,6 @@ const FormLogin = () => {
                     reject(new Error("Email or Password Invalid"))
                     alert("Email or Password Invalid")
                 })
-                // if(email==="admin@gmail.com" && password ==="123456") {
-                //     resolve(true);
-                // }
-                // else {
-                //     reject(new Error("Email or Password Invalid"));
-                // }
             }, 2000);
         });
     };
@@ -62,7 +48,6 @@ const FormLogin = () => {
                 password:""
             }}
             onSubmit={(values, actions) => {
-                Button.
                 _doLogin({email:values.email, password:values.password})
                 .then( async()=> {
                     const userData = {email:values.email}
