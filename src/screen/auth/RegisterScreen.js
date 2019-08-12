@@ -1,83 +1,101 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, Stylesheet, Button } from 'react-native';
 import { styles } from '../../styles';
 import navigationServices from '../../helper/navigationServices';
-import Firebase from '../../helper/Firebase_Config';
-import {FormLabel, FormInput} from 'react-native-elements';
+import firebase from '../../helper/Firebase_Config';
+import {Formik} from 'formik';
+import * as yup from 'yup';
+import CostumTextInput from '../../components/CostumTextInput';
+import Loading from '../../components/Loading';
 
-export default class RegisterScreen extends Component {
-    constructor (props){
-        super(props);
-        this.state = {
-            email:'',
-            password:'',
-            error:'',
-            loading:false,
+const validateFormik = yup.object().shape({
+    email:yup
+        .string()
+        .email()
+        .required(),
+    password: yup
+        .string()
+        .required()
+});
+
+const RegisterScreen = () => {
+    useEffect (()=> {
+        console.log("didmount or didupdate RegisterScreen");
+        return () => {
+            console.log("unmount RegisterScreen");
         };
-    }
-
-    onSignUpPress() {
-        this.setState({
-            error:'', 
-            loading:true
+    }, []);
+    
+    _doLogin = ({email, password}) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(()=> {
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(()=> {
+                    resolve (true)                    
+                })
+                .catch(()=>{
+                    reject(new Error("Email or Password Invalid"))
+                    alert("Email or Password Invalid")
+                })
+            }, 2000);
         });
-
-        const {email, password} = this.state;
-        Firebase.auth().createUserWithEmailAndPassword(email,password)
-        // .then (() =>{
-        //     this.setState({error:'', loading:false})
-        //     navigationServices.navigate('AUTH')
-        // })
-        // .catch(()=> {
-        //     thi.setState({error:'Authentication Failed', loading:false})
-        // })
     };
+    
+    return(
+        <Formik
+            initialValues = {{
+                email:"",
+                password:""
+            }}
+            onSubmit={(values, actions) => {
+                _doLogin({email:values.email, password:values.password})
+                .then(()=> {
+                    const userData = {email:values.email}
+                    new Promise ((resolve)=>{
+                        setTimeout(()=>{
+                            resolve (true)
+                        })
+                    }, 1500)
+                    try{
+                        // await AsyncStorage.setItem("@EMAIL",JSON.stringify(userData));
+                        navigationServices.navigate("AUTH");
+                    }catch(e) {
+                        alert(e)
+                    }
+                })
+                .catch(e => (e.message))
+                .finally(()=> actions.setSubmitting(false));
+            }}
+            validationSchema={validateFormik}
+        >
+            {formikProps => (
+                <>
+                    <CostumTextInput
+                        label="Email"
+                        nameTxtInput="email"
+                        keyboardType="email-address"
+                        formikProps={formikProps}
+                    />
+                    <CostumTextInput
+                        label="Password"
+                        nameTxtInput="password"
+                        secureTextEntry
+                        formikProps={formikProps}
+                    />
 
-    renderButtonOrLoading(){
-        if (this.state.loading){
-            return <Text>Loading</Text>
-        }
-        return (
-            <View>                
-                <Button
-                    onPress = {this.onSignUpPress.bind(this)}
-                    title = 'Sign Up'
-                />        
-            </View>
-        ) 
-    }
+                    {formikProps.isSubmitting && <Loading/>}
+                    <View style = {{marginVertical:10}}>
+                        <Button
+                            title="SIGN UP"
+                            onPress={formikProps.handleSubmit}
+                        />                        
+                    </View>
+                </>
+            )}
+        </Formik>
+    );
+};
 
-    render () {
-        return (
-            <View style = {{flex:1}}>
-                {/* <FormLabel>Email</FormLabel> */}
-                {/* <FormInput
-                    value = {this.state.email}
-                    onChangeText = {email => this.setState({email})}
-                    placeholder = 'Email'
-                />
-
-                <FormLabel>Password</FormLabel>
-                <FormInput
-                    value = {this.state.password}
-                    onChangeText = {password => this.setState({password})}
-                    placeholder = 'Password'
-                /> */}
-                <Text>{this.state.error}</Text>
-                {/* {this.renderButtonOrLoading()} */}
-            </View>
-        )
-    }
-}
-
-
-
-
-// const RegisterScreen = (props) => (
-//     <View style = {styles.container}>
-//         <Text>RegisterScreen</Text>
-//     </View>
-// )
-// export default RegisterScreen;
+export default RegisterScreen;
 
 
