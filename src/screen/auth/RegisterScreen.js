@@ -19,23 +19,12 @@ const validateFormik = yup.object().shape({
 });
 
 const RegisterScreen = () => {
-    const [refresh, _onRefresh] = useState(false);
     useEffect (()=> {
         console.log("didmount or didupdate RegisterScreen");
         return () => {
             console.log("unmount RegisterScreen");
         };
     }, []);
-
-    _onRefresh = () =>{
-        return new Promise ((resolve)=>{
-            setTimeout(() => {
-                refresh(true);
-                resolve(true);
-            }, 500);
-        })
-        
-    }
     
     _doLogin = ({email, password}) => {
         return new Promise((resolve, reject) => {
