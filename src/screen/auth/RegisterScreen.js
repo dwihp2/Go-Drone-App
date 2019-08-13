@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import { View, Text, Stylesheet, Button } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { View, Text, Stylesheet, Button, RefreshControl } from 'react-native';
 import { styles } from '../../styles';
 import navigationServices from '../../helper/navigationServices';
 import firebase from '../../helper/Firebase_Config';
@@ -19,18 +19,30 @@ const validateFormik = yup.object().shape({
 });
 
 const RegisterScreen = () => {
+    const [refresh, _onRefresh] = useState(false);
     useEffect (()=> {
         console.log("didmount or didupdate RegisterScreen");
         return () => {
             console.log("unmount RegisterScreen");
         };
     }, []);
+
+    _onRefresh = () =>{
+        return new Promise ((resolve)=>{
+            setTimeout(() => {
+                refresh(true);
+                resolve(true);
+            }, 500);
+        })
+        
+    }
     
     _doLogin = ({email, password}) => {
         return new Promise((resolve, reject) => {
             setTimeout(()=> {
                 firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then(()=> {
+                .then(user => {
+                    console.warn(user);
                     resolve (true)                    
                 })
                 .catch(()=>{
@@ -53,12 +65,13 @@ const RegisterScreen = () => {
                     const userData = {email:values.email}
                     new Promise ((resolve)=>{
                         setTimeout(()=>{
+                            console.warn(values.password)
                             resolve (true)
                         })
                     }, 1500)
                     try{
                         // await AsyncStorage.setItem("@EMAIL",JSON.stringify(userData));
-                        navigationServices.navigate("AUTH");
+                        navigationServices.navigate("LOGIN");
                     }catch(e) {
                         alert(e)
                     }
@@ -84,11 +97,11 @@ const RegisterScreen = () => {
                     />
 
                     {formikProps.isSubmitting && <Loading/>}
-                    <View style = {{marginVertical:10}}>
+                    <View style = {{marginVertical:10}}>                    
                         <Button
                             title="SIGN UP"
-                            onPress={formikProps.handleSubmit}
-                        />                        
+                            onPress={formikProps.handleSubmit}                            
+                        />                       
                     </View>
                 </>
             )}
