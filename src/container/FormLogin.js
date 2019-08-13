@@ -91,17 +91,23 @@ const FormLogin = () => {
                         />                        
                     </View>
                     <View style = {{flexDirection:"row", justifyContent:"space-between"}}>
-                        <TouchableOpacity>
-                            <Text
-                                style = {{color:"steelblue", fontSize:16, fontStyle:"italic"}}
-                            >{'Lupa Password ?'}</Text>
+                        <TouchableOpacity
+                            onPress= {()=> navigationServices.navigate('RESETPASSWORD')}>
+
+                                <Text
+                                    style = {{color:"steelblue", fontSize:16, fontStyle:"italic"}}
+                                >{'Lupa Password ?'}</Text>
+
                         </TouchableOpacity>
+                        
                         <TouchableOpacity 
                             onPress={() => navigationServices.navigate("REGISTER")}>
+
                                 <Text
                                     style={{color:"steelblue", fontSize:16, fontStyle:"italic"}}
                                     >{'Register'}
                                 </Text>
+
                         </TouchableOpacity>
                     </View>
                 </>
