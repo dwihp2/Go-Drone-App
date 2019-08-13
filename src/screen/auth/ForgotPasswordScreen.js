@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, Stylesheet, Button } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { styles } from '../../styles';
 import navigationServices from '../../helper/navigationServices';
 import firebase from '../../helper/Firebase_Config';
