@@ -29,14 +29,18 @@ const FormLogin = () => {
     _doLogin = ({email, password}) => {
         return new Promise((resolve, reject) => {
             setTimeout(()=> {
-                firebase.auth().signInWithEmailAndPassword(email, password)
-                .then(()=> {
-                    resolve (true)                    
-                })
-                .catch(()=>{
-                    reject(new Error("Email or Password Invalid"))
-                    alert("Email or Password Invalid")
-                })
+                try {
+                    firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then((res)=> {
+                        console.warn(res.user.email);
+                        resolve (true)                    
+                    })
+                    .catch ((error) =>{
+                        alert (error)
+                    })
+                } catch (error) {
+                    console.warn(error.toString(error))
+                }
             }, 2000);
         });
     };
@@ -52,6 +56,7 @@ const FormLogin = () => {
                 .then( async()=> {
                     const userData = {email:values.email}
                     try{
+                        console.warn(values.password)
                         await AsyncStorage.setItem("@EMAIL",JSON.stringify(userData));
                         navigationServices.navigate("DASHBOARD");
                     }catch(e) {
