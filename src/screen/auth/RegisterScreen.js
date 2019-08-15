@@ -16,6 +16,7 @@ const validateFormik = yup.object().shape({
     password: yup
         .string()
         .required()
+        .min(6)
 });
 
 const RegisterScreen = () => {
@@ -34,9 +35,9 @@ const RegisterScreen = () => {
                     console.warn(user);
                     resolve (true)                    
                 })
-                .catch(()=>{
-                    reject(new Error("Email or Password Invalid"))
-                    alert("Email or Password Invalid")
+                .catch((error)=>{
+                    alert(error)
+                    reject (true)
                 })
             }, 2000);
         });

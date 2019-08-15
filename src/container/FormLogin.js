@@ -16,6 +16,7 @@ const validateFormik = yup.object().shape({
     password: yup
         .string()
         .required()
+        .min(6)
 });
 
 const FormLogin = () => {
@@ -37,6 +38,7 @@ const FormLogin = () => {
                     })
                     .catch ((error) =>{
                         alert (error)
+                        reject (true)
                     })
                 } catch (error) {
                     console.warn(error.toString(error))
